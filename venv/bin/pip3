@@ -1,6 +1,4 @@
-#!/bin/sh
-'''exec' "/Users/ilagulakin/Downloads/пкуукпвпвпа/Script_Telegram 2/venv/bin/python3.12" "$0" "$@"
-' '''
+#!/Users/ilagulakin/Desktop/script/Script_Telegram_2/venv/bin/python3.13
 # -*- coding: utf-8 -*-
 import re
 import sys

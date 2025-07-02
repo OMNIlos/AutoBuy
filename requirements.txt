@@ -7,3 +7,4 @@ python-telegram-bot==22.0
 flask==3.1.0
 tk==0.1.0
 pyautogui==0.9.54
+selenium==4.21.0
