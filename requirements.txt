@@ -1,0 +1,9 @@
+opencv-python==4.11.0.86
+numpy==2.2.4
+pytesseract==0.3.13
+pillow==11.1.0
+requests==2.32.3
+python-telegram-bot==22.0
+flask==3.1.0
+tk==0.1.0
+pyautogui==0.9.54

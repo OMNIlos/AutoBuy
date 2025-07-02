@@ -1,0 +1,14 @@
+{
+    "MENU_X": 556,
+    "MENU_Y": 382,
+    "MENU_WIDTH": 355,
+    "MENU_HEIGHT": 144, 
+
+    "PRICE_DETECTION": {
+        "MENU_X": 30,
+        "MENU_Y": 129.6,
+        "MENU_WIDTH": 60,
+        "MENU_HEIGHT": 24.6
+    }
+
+}
