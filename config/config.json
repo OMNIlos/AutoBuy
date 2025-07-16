@@ -1,42 +1,44 @@
 {
-    "emulator_id": "emulator-5554",
-    "telegram_bot_token": "7594673697:AAGDqT-MZoO4XOtrZEXEdITLq5wSHqNsEtU",
-    "telegram_chat_id": "1815408954",
-    "telegram_api_url": "https://api.telegram.org",
-    
-    "gift_price_min": 10,
-    "gift_price_max": 100,
-    "gift_quantity": 10,
-    
-    "priority_strategy": "value",
-    "duplicate_threshold": 30,
-    "max_gifts_per_scan": 3,
-    "scan_interval": 0.8,
-    "template_threshold": 0.7,
-    
-    "price_detection": {
-        "x_offset": 10,
-        "y_offset": 30,
-        "width": 200,
-        "height": 50
-    },
-    
-    "screen_resolution": [1080, 1920],
-    "button_positions": {
-        "buy_button": [500, 1000],
-        "confirm_button": [700, 1200]
-    },
-    
-    "proxies": [
-        "http://46.173.211.221:12880",
-        "http://91.211.177.32:3629",
-        "http://9.0.2.243:5430"
+  "emulator_id": "emulator-5554",
+  "telegram_bot_token": "7594673697:AAGDqT-MZoO4XOtrZEXEdITLq5wSHqNsEtU",
+  "telegram_chat_id": "1815408954",
+  "telegram_api_url": "https://api.telegram.org",
+  "gift_price_min": 10,
+  "gift_price_max": 100,
+  "gift_quantity": 10,
+  "priority_strategy": "value",
+  "duplicate_threshold": 30,
+  "max_gifts_per_scan": 3,
+  "scan_interval": 0.8,
+  "template_threshold": 0.7,
+  "price_detection": {
+    "x_offset": 10,
+    "y_offset": 30,
+    "width": 200,
+    "height": 50
+  },
+  "screen_resolution": [
+    1080,
+    1920
+  ],
+  "button_positions": {
+    "buy_button": [
+      500,
+      1000
     ],
-    
-    "notification_settings": {
-        "error_cooldown": 300,
-        "success_cooldown": 60
-    },
-
-    "monitor_interval": 5
+    "confirm_button": [
+      700,
+      1200
+    ]
+  },
+  "proxies": [
+    "http://46.173.211.221:12880",
+    "http://91.211.177.32:3629",
+    "http://9.0.2.243:5430"
+  ],
+  "notification_settings": {
+    "error_cooldown": 300,
+    "success_cooldown": 60
+  },
+  "monitor_interval": 5
 }

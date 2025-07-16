@@ -1,3 +1,3 @@
 {
-  "gift_selector": "#portals > div:nth-child(2) > div > div > div.modal-dialog > div > div.Transition.pP8TxefR > div > div > div.Transition.kB6IyXqS > div > div > div:nth-child(14)"
-} 
+  "gift_selector": "#portals > div > div.Modal.tJK1W0pJ.slim.low-priority.opacity-transition.fast.shown.open > div.modal-container > div.modal-dialog > div.modal-content.custom-scroll.o3V1HqbL > div.Transition.pP8TxefR > div.Transition_slide.Transition_slide-active > div.cVXqeu9P.custom-scroll > div.Transition.kB6IyXqS > div.Transition_slide.Transition_slide-active > div.OQX3GZl5 > div.G1mBmzxs.f5ArEO1S.starGiftItem"
+}
