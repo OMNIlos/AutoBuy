@@ -13,6 +13,8 @@ from src.auth import TelegramWebNavigator
 from src.config import load_config, save_config
 from src.notifier import send_telegram_notification
 import requests
+import numpy as np
+from PIL import ImageDraw
 from PIL import Image, ImageTk
 import os
 
@@ -21,41 +23,36 @@ class GiftBotGUI:
         self.root = tk.Tk()
         self.root.title("Gift buyer bot")
         self.root.geometry("800x700")
-        # Цвета в стиле логотипа
-        self.bg_main = '#1a0826'  # тёмно-фиолетовый
-        self.bg_panel = '#2d1040'  # чуть светлее
-        self.bg_frame = '#3a1760'  # для секций
-        self.fg_text = '#e0d6ff'   # светлый текст
-        self.fg_accent = '#a259ff' # яркий фиолетовый
-        self.fg_status = '#c084fc' # для статусов
+        
+        self.bg_main = '#1a0826'  
+        self.bg_panel = '#2d1040' 
+        self.bg_frame = '#3a1760' 
+        self.fg_text = '#e0d6ff'  
+        self.fg_accent = '#a259ff' 
+        self.fg_status = '#c084fc' 
         self.root.configure(bg=self.bg_main)
         
-        # Переменные
         self.price_threshold = tk.StringVar(value="50")
-        self.min_price_filter = tk.IntVar(value=10000)
-        self.gift_elem_number_filter = tk.IntVar(value=13)  # Номер подарка по умолчанию
+        self.min_price_filter = tk.IntVar(value=100)
+        self.gift_elem_number_filter = tk.IntVar(value=13) 
         self.use_absolute_threshold = tk.BooleanVar(value=False)
         self.absolute_threshold = tk.StringVar(value="100")
         self.is_running = False
         self.user_confirmed = False
         self.stop_thread = threading.Event()
         self.driver = None
-        self.stage = 'idle'  # idle, automation
+        self.stage = 'idle' 
         
-        # Очередь для логов
         self.log_queue = queue.Queue()
         
         self.chat_id_var = tk.StringVar()
         self.chat_id_status_var = tk.StringVar()
         self.load_chat_id_from_config()
         
-        # Настройка стилей
         self.setup_styles()
         
-        # Создание интерфейса
         self.setup_ui()
         
-        # Запуск обновления логов
         self.update_logs()
         self.update_buttons_state()
         
@@ -64,7 +61,6 @@ class GiftBotGUI:
         style = ttk.Style()
         style.theme_use('alt')
         
-        # Настройка цветов
         style.configure('Title.TLabel', font=('Arial', 18, 'bold'), foreground=self.fg_accent, background=self.bg_main)
         style.configure('Header.TLabel', font=('Arial', 12, 'bold'), foreground=self.fg_accent, background=self.bg_panel)
         style.configure('Status.TLabel', font=('Arial', 10), foreground=self.fg_status, background=self.bg_frame)
@@ -79,18 +75,15 @@ class GiftBotGUI:
         
     def setup_ui(self):
         """Создание пользовательского интерфейса"""
-        # --- Логотип ---
         logo_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'gift_logo.png')
         logo_img = None
         if os.path.exists(logo_path):
             try:
                 pil_img = Image.open(logo_path).resize((90, 90)).convert('RGBA')
-                # Обрезаем в круг
-                import numpy as np
+                
                 size = pil_img.size
                 mask = Image.new('L', size, 0)
                 draw = Image.new('L', size, 0)
-                from PIL import ImageDraw
                 ImageDraw.Draw(mask).ellipse((0, 0) + size, fill=255)
                 pil_img.putalpha(mask)
                 logo_img = ImageTk.PhotoImage(pil_img)
@@ -102,20 +95,20 @@ class GiftBotGUI:
         else:
             tk.Label(self.root, text="🎁", font=("Arial", 44), bg=self.bg_main, fg=self.fg_accent).pack(pady=(18, 2))
             tk.Label(self.root, text="Поместите файл gift_logo.png в папку templates/ для фирменного логотипа", font=("Arial", 8), bg=self.bg_main, fg=self.fg_status).pack()
-        # --- Заголовок ---
+       
         title_label = ttk.Label(
             self.root, 
             text="AutoBuy bot", 
             style='Title.TLabel'
         )
         title_label.pack(pady=(2, 18))
-        # Основной контейнер
+        
         main_frame = ttk.Frame(self.root, style='TFrame')
         main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
-        # Левая панель - настройки
+       
         left_frame = tk.LabelFrame(main_frame, text="⚙️ Настройки", padx=15, pady=10, bg=self.bg_panel, fg=self.fg_accent, font=("Arial", 12, "bold"), relief=tk.GROOVE, bd=2)
         left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
-        # --- Блок Chat ID ---
+        
         chatid_frame = tk.LabelFrame(left_frame, text="💬 Telegram Chat ID", padx=10, pady=8, bg=self.bg_frame, fg=self.fg_accent, font=("Arial", 11, "bold"), relief=tk.GROOVE, bd=2)
         chatid_frame.pack(fill=tk.X, pady=(0, 10))
         tk.Label(chatid_frame, text="Chat ID пользователя для уведомлений:", bg=self.bg_frame, fg=self.fg_text, font=("Arial", 10)).pack(anchor=tk.W)
@@ -129,7 +122,7 @@ class GiftBotGUI:
         get_btn.pack(side=tk.LEFT)
         status_label = tk.Label(chatid_frame, textvariable=self.chat_id_status_var, font=("Arial", 9), fg=self.fg_status, bg=self.bg_frame)
         status_label.pack(anchor=tk.W, pady=(2, 0))
-        # --- Кнопки управления ---
+       
         button_frame = tk.Frame(left_frame, bg=self.bg_panel)
         button_frame.pack(fill=tk.X, pady=20)
         self.start_button = tk.Button(
@@ -160,30 +153,30 @@ class GiftBotGUI:
             bg="#7c3aed", fg=self.bg_main, font=("Arial", 10, "bold"), width=20, relief=tk.RAISED, bd=1, activebackground=self.fg_status, state=tk.DISABLED
         )
         self.continue_button.pack(side=tk.LEFT)
-        # --- Блок фильтрации цены и порога (верстка исправлена) ---
+       
         filter_frame = tk.LabelFrame(left_frame, text="💸 Фильтрация и порог", padx=10, pady=8, bg=self.bg_frame, fg=self.fg_accent, font=("Arial", 11, "bold"), relief=tk.GROOVE, bd=2)
         filter_frame.pack(fill=tk.X, pady=(0, 10))
-        # Порог в процентах
+       
         percent_row = tk.Frame(filter_frame, bg=self.bg_frame)
         percent_row.pack(fill=tk.X, pady=(2, 0))
         tk.Label(percent_row, text="Порог в процентах ниже среднего:", bg=self.bg_frame, fg=self.fg_text, font=("Arial", 10)).pack(side=tk.LEFT)
         percent_entry = tk.Entry(percent_row, textvariable=self.price_threshold, width=8, bg=self.bg_panel, fg=self.fg_accent, insertbackground=self.fg_accent, relief=tk.FLAT)
         percent_entry.pack(side=tk.LEFT, padx=(8, 0))
         tk.Label(percent_row, text="%", bg=self.bg_frame, fg=self.fg_accent, font=("Arial", 10)).pack(side=tk.LEFT, padx=(2, 0))
-        # Минимальная цена
+       
         min_row = tk.Frame(filter_frame, bg=self.bg_frame)
         min_row.pack(fill=tk.X, pady=(8, 0))
         tk.Label(min_row, text="Мин. цена для фильтрации:", bg=self.bg_frame, fg=self.fg_text, font=("Arial", 10)).pack(side=tk.LEFT)
         min_price_entry = tk.Entry(min_row, textvariable=self.min_price_filter, width=10, bg=self.bg_panel, fg=self.fg_accent, insertbackground=self.fg_accent, relief=tk.FLAT)
         min_price_entry.pack(side=tk.LEFT, padx=(8, 0))
         tk.Label(min_row, text="⭐", bg=self.bg_frame, fg=self.fg_accent, font=("Arial", 10)).pack(side=tk.LEFT, padx=(2, 0))
-        # Индекс интересующего подарка
+       
         index_row = tk.Frame(filter_frame, bg=self.bg_frame)
         index_row.pack(fill=tk.X, pady=(8, 0))
         tk.Label(index_row, text="Индекс интересующего подарка:", bg=self.bg_frame, fg=self.fg_text, font=("Arial", 10)).pack(side=tk.LEFT)
         gift_elem_entry = tk.Entry(index_row, textvariable=self.gift_elem_number_filter, width=8, bg=self.bg_panel, fg=self.fg_accent, insertbackground=self.fg_accent, relief=tk.FLAT)
         gift_elem_entry.pack(side=tk.LEFT, padx=(8, 0))
-        # Чекбокс абсолютного отклонения
+      
         abs_row = tk.Frame(filter_frame, bg=self.bg_frame)
         abs_row.pack(fill=tk.X, pady=(10, 0))
         absolute_check = tk.Checkbutton(
@@ -194,7 +187,7 @@ class GiftBotGUI:
             bg=self.bg_frame, fg=self.fg_text, font=("Arial", 10), selectcolor=self.bg_panel, activebackground=self.bg_frame
         )
         absolute_check.pack(side=tk.LEFT)
-        # Абсолютное отклонение — отдельная строка с отступом
+       
         abs_val_row = tk.Frame(filter_frame, bg=self.bg_frame)
         abs_val_row.pack(fill=tk.X, pady=(4, 0), padx=(24, 0))
         tk.Label(abs_val_row, text="Абсолютное отклонение от среднего (в звездах):", bg=self.bg_frame, fg=self.fg_text, font=("Arial", 8)).pack(side=tk.LEFT)
@@ -208,7 +201,7 @@ class GiftBotGUI:
         )
         self.absolute_entry.pack(side=tk.LEFT, padx=(8, 0))
         tk.Label(abs_val_row, text="⭐", font=("Arial", 12), bg=self.bg_frame, fg=self.fg_accent).pack(side=tk.LEFT, padx=(2, 0))
-        # --- Статус ---
+       
         status_frame = tk.LabelFrame(left_frame, text="📊 Статус", padx=10, pady=8, bg=self.bg_frame, fg=self.fg_accent, font=("Arial", 11, "bold"), relief=tk.GROOVE, bd=2)
         status_frame.pack(fill=tk.X, pady=(0, 10))
         self.status_label = tk.Label(
@@ -219,7 +212,7 @@ class GiftBotGUI:
             bg=self.bg_frame
         )
         self.status_label.pack()
-        # --- Информация ---
+       
         info_frame = tk.LabelFrame(left_frame, text="ℹ️ Информация", padx=10, pady=8, bg=self.bg_frame, fg=self.fg_accent, font=("Arial", 11, "bold"), relief=tk.GROOVE, bd=2)
         info_frame.pack(fill=tk.BOTH, pady=(0, 10), expand=True)
         info_text = """
@@ -244,16 +237,16 @@ class GiftBotGUI:
         info_text_widget.insert(tk.END, info_text)
         info_text_widget.config(state=tk.DISABLED)
         info_text_widget.pack(fill=tk.BOTH, expand=True)
-        # Добавляем прокрутку
+       
         info_scroll = tk.Scrollbar(info_frame, command=info_text_widget.yview)
         info_text_widget.config(yscrollcommand=info_scroll.set)
         info_scroll.pack(side=tk.RIGHT, fill=tk.Y)
         
-        # Правая панель - логи
+       
         right_frame = ttk.LabelFrame(main_frame, text="📝 Логи работы", padding=15, style='TFrame')
         right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(10, 0))
         
-        # Область для логов (уменьшена высота)
+       
         self.log_area = scrolledtext.ScrolledText(
             right_frame,
             wrap=tk.WORD,
@@ -266,7 +259,7 @@ class GiftBotGUI:
         )
         self.log_area.pack(fill=tk.BOTH, expand=True)
         
-        # Кнопка очистки логов
+       
         ttk.Button(
             right_frame,
             text="🗑 Очистить логи",
@@ -274,14 +267,12 @@ class GiftBotGUI:
             width=15
         ).pack(pady=(10, 0))
         
-        # Запуск обновления логов
         self.update_logs()
         
     def log_message(self, message, level="INFO"):
         """Добавление сообщения в лог с уровнем важности"""
         timestamp = time.strftime("%H:%M:%S")
         
-        # Эмодзи для разных уровней
         level_icons = {
             "INFO": "ℹ️",
             "SUCCESS": "✅", 
@@ -341,14 +332,12 @@ class GiftBotGUI:
         self.continue_button.config(state=tk.NORMAL)
         self.log_message("Ожидание подтверждения от пользователя...", "INFO")
         
-        # Ждем подтверждения
         while not self.user_confirmed and not self.stop_thread.is_set():
-            time.sleep(0.1)  # Уменьшаем интервал для более быстрой реакции
+            time.sleep(0.1) 
             
         if self.stop_thread.is_set():
             raise Exception("Бот остановлен пользователем")
         
-        # Сбрасываем флаг подтверждения для следующего использования
         self.user_confirmed = False
         
     def start_bot(self):
@@ -360,17 +349,15 @@ class GiftBotGUI:
             self.log_message("Запуск Telegram Gift Bot...", "START")
             self.status_label.config(text="🟡 Инициализация...")
             
-            # Сброс флагов
             self.stop_thread.clear()
             self.user_confirmed = False
             
-            # Получение параметров
             threshold = float(self.price_threshold.get())
             min_price = self.min_price_filter.get()
             gift_elem_number = self.gift_elem_number_filter.get()
             use_absolute = self.use_absolute_threshold.get()
             absolute_threshold = float(self.absolute_threshold.get()) if use_absolute else 0
-            # Используем стандартный селектор подарков
+
             gift_selector = 'div.G1mBmzxs.f5ArEO1S.starGiftItem'
             chat_id = self.chat_id_var.get().strip() or None
             
@@ -385,7 +372,6 @@ class GiftBotGUI:
             if chat_id:
                 self.log_message(f"   • Chat ID: {chat_id}", "INFO")
             
-            # Открываем браузер для автоматизации
             if self.driver:
                 try:
                     self.driver.quit()
@@ -395,7 +381,6 @@ class GiftBotGUI:
             self.driver.maximize_window()
             self.driver.get('https://web.telegram.org')
             
-            # Запуск в отдельном потоке
             self.bot_thread = threading.Thread(target=self.run_bot, args=(threshold, gift_elem_number, min_price, gift_selector, use_absolute, absolute_threshold, chat_id))
             self.bot_thread.daemon = True
             self.bot_thread.start()
@@ -428,7 +413,6 @@ class GiftBotGUI:
             self.log_message(f"Ошибка работы бота: {e}", "ERROR")
             self.log_message("Проверьте подключение к интернету и попробуйте снова", "WARNING")
         finally:
-            # Сброс интерфейса только если бот действительно завершился (не перезапуск)
             if not self.is_running:
                 if self.driver:
                     try:
@@ -447,21 +431,17 @@ class GiftBotGUI:
             
         self.log_message("Остановка бота...", "STOP")
         
-        # Устанавливаем флаг остановки
         self.stop_thread.set()
         
-        # Ждем завершения потока бота
         if hasattr(self, 'bot_thread') and self.bot_thread.is_alive():
             self.log_message("Ожидание завершения потока бота...", "INFO")
             self.bot_thread.join(timeout=5)  # Ждем максимум 5 секунд
             if self.bot_thread.is_alive():
                 self.log_message("Поток бота не завершился за 5 секунд", "WARNING")
         
-        # Сбрасываем флаги
         self.is_running = False
         self.stage = 'idle'
         
-        # Закрываем браузер
         if self.driver:
             try:
                 self.log_message("Закрытие браузера...", "BROWSER")
@@ -471,7 +451,6 @@ class GiftBotGUI:
             finally:
                 self.driver = None
         
-        # Обновляем интерфейс
         self.update_buttons_state()
         self.status_label.config(text="🟠 Ожидание")
         self.log_message("Бот успешно остановлен", "SUCCESS")
@@ -498,7 +477,6 @@ class GiftBotGUI:
             self.absolute_entry.config(state=tk.DISABLED)
     
     def update_buttons_state(self):
-        # Управление состояниями кнопок в зависимости от этапа и наличия браузера
         if self.stage == 'idle':
             self.start_button.config(state=tk.NORMAL)
             self.stop_button.config(state=tk.DISABLED)
@@ -508,7 +486,6 @@ class GiftBotGUI:
             self.stop_button.config(state=tk.NORMAL)
             self.continue_button.config(state=tk.NORMAL)
         
-        # Кнопка перезапуска браузера доступна только когда браузер запущен
         self.restart_browser_button.config(state=tk.NORMAL if self.driver else tk.DISABLED)
 
 
@@ -517,7 +494,6 @@ class GiftBotGUI:
         if not self.driver:
             self.log_message("Перезапуск браузера невозможен: браузер не запущен", "WARNING")
             return
-        # Если автоматизация активна — безопасно перезапустить поток
         if self.is_running and self.stage == 'automation':
             self.log_message("Остановка автоматизации для перезапуска браузера...", "INFO")
             self.stop_thread.set()
@@ -531,20 +507,17 @@ class GiftBotGUI:
             self.driver.maximize_window()
             self.driver.get('https://web.telegram.org')
             self.log_message("Новый браузер запущен. Авторизуйтесь и дойдите до нужного места, затем нажмите 'Продолжить'", "BROWSER")
-            # Запустить новый поток автоматизации, снова ждать подтверждения
             self.stop_thread = threading.Event()
             threshold = float(self.price_threshold.get())
             min_price = self.min_price_filter.get()
             gift_elem_number = self.gift_elem_number_filter.get()
             use_absolute = self.use_absolute_threshold.get()
             absolute_threshold = float(self.absolute_threshold.get()) if use_absolute else 0
-            # Используем стандартный селектор подарков
             gift_selector = 'div.G1mBmzxs.f5ArEO1S.starGiftItem'
             chat_id = self.chat_id_var.get().strip() or None
             self.bot_thread = threading.Thread(target=self.run_bot, args=(threshold, gift_elem_number, min_price, gift_selector, use_absolute, absolute_threshold, chat_id))
             self.bot_thread.daemon = True
             self.bot_thread.start()
-            # Сохраняем состояние автоматизации
             self.is_running = True
             self.stage = 'automation'
             self.update_buttons_state()
@@ -585,16 +558,15 @@ class GiftBotGUI:
             self.chat_id_status_var.set(f'Ошибка сохранения: {e}')
 
     def get_chat_id_from_telegram(self):
-        # Отправляем команду пользователю и ждём ответа
         try:
             token = load_config().get('telegram_bot_token')
             if not token:
                 self.chat_id_status_var.set('❌ Не задан токен бота!')
                 return
-            # Отправляем инструкцию пользователю
+            
             send_telegram_notification('Пожалуйста, отправьте /get_chat_id этому боту в Telegram, чтобы получить ваш Chat ID.')
             self.chat_id_status_var.set('⏳ Ожидание ответа от пользователя...')
-            # Попытка получить chat_id через getUpdates
+            
             url = f'https://api.telegram.org/bot{token}/getUpdates'
             for _ in range(10):
                 resp = requests.get(url, timeout=5)

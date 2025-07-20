@@ -24,12 +24,10 @@ class TelegramWebNavigator:
         time.sleep(2)
 
     def go_to_gift_menu(self):
-        # Открыть меню (гамбургер)
         menu_btn = WebDriverWait(self.driver, 30).until(EC.element_to_be_clickable((By.CSS_SELECTOR, MENU_SELECTOR)))
         menu_btn.click()
         time.sleep(0.5)
         print("Burger Меню открыто.")
-        # Открыть Settings по тексту
         settings_btn = WebDriverWait(self.driver, 30).until(
             EC.element_to_be_clickable((By.XPATH, '//div[contains(text(), "Settings")]'))
         )
@@ -37,7 +35,6 @@ class TelegramWebNavigator:
         time.sleep(0.5)
         print("Settings открыто.")
 
-        # Прокрутка меню Settings вниз
         try:
             settings_menu_container = self.driver.find_element(By.ID, 'Settings')
             self.driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", settings_menu_container)
@@ -45,7 +42,6 @@ class TelegramWebNavigator:
         except Exception as e:
             print(f"Не удалось прокрутить меню Settings: {e}")
 
-        # Send a Gift
         send_gift_btn = WebDriverWait(self.driver, 30).until(
             EC.element_to_be_clickable((By.XPATH, '//div[contains(text(), "Send a Gift")]'))
         )
@@ -53,7 +49,6 @@ class TelegramWebNavigator:
         time.sleep(0.5)
         print("Send a Gift открыто.")
 
-        # Выбрать первый контакт
         first_contact = WebDriverWait(self.driver, 30).until(
             EC.element_to_be_clickable((By.XPATH, '//div[contains(text(), "First contact")]'))
         )

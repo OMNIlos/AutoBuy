@@ -25,9 +25,7 @@ def start_polling_bot():
         print(f'Не удалось запустить polling-бота: {e}')
 
 def main():
-    # Запуск polling-бота для chat_id
     start_polling_bot()
-    # Всегда пытаемся запустить нативный GUI интерфейс
     try:
         print("🎨 Запуск нативного GUI интерфейса...")
         app = GiftBotGUI()
@@ -90,7 +88,6 @@ def run_text_mode():
 if __name__ == "__main__":
     try:
         main()
-        # При завершении основного приложения — завершить polling-бота
         if polling_bot_process is not None:
             try:
                 polling_bot_process.terminate()

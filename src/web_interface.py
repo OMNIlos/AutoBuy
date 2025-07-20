@@ -7,14 +7,12 @@ from src.gift_logic import GiftBuyer
 
 app = Flask(__name__)
 
-# Глобальные переменные для управления ботом
 bot_thread = None
 driver = None
 buyer = None
 is_running = False
 log_queue = queue.Queue()
 
-# HTML шаблон для веб-интерфейса
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="ru">
@@ -424,8 +422,8 @@ def get_logs():
     return jsonify({'logs': logs})
 
 @app.route('/stats')
+
 def get_stats():
-    # Здесь можно добавить реальную статистику
     return jsonify({
         'gifts_bought': 0,
         'cycles': 0,

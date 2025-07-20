@@ -15,7 +15,7 @@ def save_selector(selector):
     print(f"Селектор сохранён: {selector}")
 
 def main():
-    driver = webdriver.Firefox()  # Изменено с Safari на Firefox
+    driver = webdriver.Firefox()
     driver.maximize_window()
     driver.get('https://web.telegram.org')
     print("Пожалуйста, авторизуйтесь через QR-код и нажмите Enter...")
@@ -24,7 +24,6 @@ def main():
     input()
     print("Наведите мышь на нужный подарок и кликните по нему в окне браузера. Селектор будет определён автоматически.")
 
-    # Вставляем JS для отслеживания клика и получения селектора
     js = '''
     window._gift_selector = null;
     document.addEventListener('click', function(e) {
@@ -48,7 +47,6 @@ def main():
     '''
     driver.execute_script(js)
     print("Сделайте клик по нужному подарку в браузере...")
-    # Ждем, пока JS не запишет селектор
     selector = None
     for _ in range(60):
         selector = driver.execute_script('return window._gift_selector;')
