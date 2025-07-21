@@ -5,10 +5,11 @@ from datetime import datetime
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from src.config import (
-    load_gift_selector, TARGET_TYPE_GIFT, TARGET_GIFT, TARGET_PRICE, SECOND_PRICE, THIRD_PRICE,
+from src.config_constants import (
+    TARGET_TYPE_GIFT, TARGET_GIFT, TARGET_PRICE, SECOND_PRICE, THIRD_PRICE,
     RETURN_TO_TYPE_GIFT_BUTTON, PAY_BUTTON_FOR_TARGET_GIFT, EXIT_FROM_PAYING_GIFT_BUTTON
 )
+from src.config import load_gift_selector
 from selenium.webdriver.common.keys import Keys
 from src.notifier import send_telegram_notification
 from selenium.common.exceptions import TimeoutException
@@ -36,21 +37,27 @@ class GiftBuyer:
             self.log_callback(message)
 
     def open_type_gift(self):
-        self.log("Открываем выбранный тип подарка...")
+        self.log("Загружаем выбранный тип подарка...")
         try:
-            
             type_gift_elems = self.driver.find_elements(By.CSS_SELECTOR, 'div.G1mBmzxs.f5ArEO1S.starGiftItem')
             if not type_gift_elems:
                 self.log("❌ Не найдено ни одного типа подарка!")
                 return
             
-           
-            if self.gift_elem_number >= len(type_gift_elems):
-                self.log(f"❌ Индекс {self.gift_elem_number} выходит за границы списка (всего {len(type_gift_elems)} подарков)")
-                self.gift_elem_number = min(self.gift_elem_number, len(type_gift_elems) - 1)
-                self.log(f"Используем индекс {self.gift_elem_number}")
+            # Преобразуем номер подарка (1-based) в индекс списка (0-based)
+            gift_index = self.gift_elem_number - 1
             
-            type_gift_btn = type_gift_elems[self.gift_elem_number]
+            # Проверяем границы
+            if gift_index >= len(type_gift_elems):
+                self.log(f"❌ Номер подарка {self.gift_elem_number} выходит за границы списка (всего {len(type_gift_elems)} подарков)")
+                gift_index = len(type_gift_elems) - 1
+                self.log(f"Используем последний доступный подарок (номер {gift_index + 1})")
+            elif gift_index < 0:
+                self.log(f"❌ Номер подарка должен быть больше 0")
+                gift_index = 0
+                self.log(f"Используем первый подарок (номер 1)")
+            
+            type_gift_btn = type_gift_elems[gift_index]
             
             self.driver.execute_script("arguments[0].scrollIntoView({block: 'center', inline: 'center'});", type_gift_btn)
             time.sleep(0.1)
@@ -85,35 +92,6 @@ class GiftBuyer:
             self.log(f"Ошибка при выборе типа подарка")
             time.sleep(2)
 
-    def analyze_page_structure(self):
-        """Анализирует структуру страницы для поиска цен"""
-        print("Анализируем структуру страницы...")
-        
-        
-        elements_with_stars = self.driver.find_elements(By.XPATH, "//*[contains(text(), '⭐') or contains(text(), '*')]")
-        print(f"Найдено {len(elements_with_stars)} элементов")
-        
-        for i, element in enumerate(elements_with_stars[:10]):  
-            try:
-                text = element.text.strip()
-                tag_name = element.tag_name
-                class_name = element.get_attribute('class')
-                print(f"  {i+1}. {tag_name} (class: {class_name}): '{text}'")
-            except:
-                continue
-        
-       
-        buttons = self.driver.find_elements(By.TAG_NAME, "button")
-        print(f"Найдено {len(buttons)} кнопок:")
-        
-        for i, button in enumerate(buttons[:5]):  
-            try:
-                text = button.text.strip()
-                class_name = button.get_attribute('class')
-                print(f"  {i+1}. button (class: {class_name}): '{text}'")
-            except:
-                continue
-    
     def get_gift_elements(self):
         """Возвращает список всех элементов подарков на странице"""
         try:
@@ -380,8 +358,8 @@ class GiftBuyer:
                 if price >= self.min_price_threshold:
                     gifts.append({'elem': elem, 'price': price, 'index': i+1})
             
-            # Если слишком много устаревших элементов, перезапускаем поиск
-            if stale_count > total_count * 0.5:  # Если больше 50% элементов устарели
+           
+            if stale_count > total_count * 0.5: 
                 self.log(f"⚠️ Обнаружено много устаревших элементов ({stale_count}/{total_count}), перезапускаем поиск...")
                 self._sleep_with_stop(2)
                 continue

@@ -5,16 +5,21 @@ import sys
 from src.gui_interface import GiftBotGUI
 import subprocess
 import os
+from pyfiglet import Figlet
 from src.notifier import send_telegram_notification
-from src.auth import TelegramWebNavigator
 from src.config import load_config, save_config
 
 POLLING_BOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'get_chat_id_bot.py'))
 
 polling_bot_process = None
 
+def print_banner():
+    f = Figlet(font='slant')
+    print(f.renderText('Auto Buy'))
+
 def start_polling_bot():
     global polling_bot_process
+    print_banner()
     if polling_bot_process is not None and polling_bot_process.poll() is None:
         print('Polling-бот уже запущен.')
         return

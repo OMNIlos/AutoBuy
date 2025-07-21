@@ -9,7 +9,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
-from src.auth import TelegramWebNavigator
 from src.config import load_config, save_config
 from src.notifier import send_telegram_notification
 import requests
@@ -34,7 +33,7 @@ class GiftBotGUI:
         
         self.price_threshold = tk.StringVar(value="50")
         self.min_price_filter = tk.IntVar(value=100)
-        self.gift_elem_number_filter = tk.IntVar(value=13) 
+        self.gift_elem_number_filter = tk.IntVar(value=14)  
         self.use_absolute_threshold = tk.BooleanVar(value=False)
         self.absolute_threshold = tk.StringVar(value="100")
         self.is_running = False
@@ -368,7 +367,6 @@ class GiftBotGUI:
                 self.log_message(f"   • Процентный порог: {threshold}% ниже среднего", "MONEY")
             self.log_message(f"   • Мин. цена: {min_price}⭐", "MONEY")
             self.log_message(f"   • Номер подарка: {gift_elem_number}", "GIFT")
-            self.log_message(f"   • Селектор подарка: {gift_selector}", "DEBUG")
             if chat_id:
                 self.log_message(f"   • Chat ID: {chat_id}", "INFO")
             
